@@ -1,47 +1,54 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SysStats {
-    system: SystemData,
-    memory: MemoryData,
-    cpu: CPUData,
-    disks: Vec<DiskData>,
-    gpu: GPUData,
+    pub system: SystemData,
+    pub memory: MemoryData,
+    pub cpu: CPUData,
+    pub disks: Vec<DiskData>,
+    pub gpu: GPUData,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SystemData {
-    name: String,
-    kernel: String,
-    os_version: String,
-    host_name: String
+    pub name: String,
+    pub kernel: String,
+    pub os_version: String,
+    pub hostname: String
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct MemoryData {
-    total: f64,
-    used: f64,
-    total_swap: f64,
-    used_swap: f64,
+    pub total: f64,
+    pub used: f64,
+    pub total_swap: f64,
+    pub used_swap: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CPUData {
-    threads: u8,
-    temperature: u8,
-    used_percentage: f64,
+    pub name: String,
+    pub threads: u8,
+    pub temperature: f64,
+    pub frequency: f64,
+    pub used_percentage: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DiskData {
-    device: String,
-    filesystem: String,
-    disk_type: DiskType,
-    total_space: f64,
-    used_space: f64,
-    mounted_on: String
+    pub device: String,
+    pub filesystem: String,
+    pub total_space: f64,
+    pub used_space: f64,
+    pub mounted_on: String
 }
 
-pub enum DiskType {
-    SSD,
-    HDD
-}
-
-
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GPUData {
-    used_percentage: f64,
-    temperature: u8,
+    pub vendor: String,
+    pub model: String,
+    pub total_vram: f64,
+    pub used_vram: f64,
+    pub load_percentage: f64,
+    pub temperature: f64,
 }
