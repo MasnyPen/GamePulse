@@ -1,13 +1,17 @@
 package dev.masnypen.gamepulseserver.models;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class SystemData {
     private String name;
     private String kernel;
-    private String os_version;
-    private String host_name;
+    @SerializedName("os_version")
+    private String osVersion;
+    private String hostname;
 }
