@@ -52,3 +52,39 @@ pub struct GPUData {
     pub load_percentage: f64,
     pub temperature: f64,
 }
+
+// Packet Type
+#[derive(PartialEq)]
+pub enum PacketType {
+    GPULSE_AUTH,
+    GPULSE_AUTH_ACK,
+    GPULSE_AUTH_ERR,
+    GPULSE_DENY,
+
+    GPULSE_SYSSTATS,
+}
+
+impl PacketType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            PacketType::GPULSE_AUTH => "GPULSE_AUTH",
+            PacketType::GPULSE_AUTH_ACK => "GPULSE_AUTH_ACK",
+            PacketType::GPULSE_AUTH_ERR => "GPULSE_AUTH_ERR",
+            PacketType::GPULSE_DENY => "GPULSE_DENY",
+            PacketType::GPULSE_SYSSTATS => "GPULSE_SYSSTATS",
+        }
+    }
+}
+
+impl PacketType {
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "GPULSE_AUTH" => Some(PacketType::GPULSE_AUTH),
+            "GPULSE_AUTH_ACK" => Some(PacketType::GPULSE_AUTH_ACK),
+            "GPULSE_AUTH_ERR" => Some(PacketType::GPULSE_AUTH_ERR),
+            "GPULSE_DENY" => Some(PacketType::GPULSE_DENY),
+            "GPULSE_SYSSTATS" => Some(PacketType::GPULSE_SYSSTATS),
+            _ => None,
+        }
+    }
+}
