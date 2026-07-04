@@ -1,3 +1,18 @@
 spring:
-  application:
-    name: server
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gamepulse
+    username: gamepulse
+    password: gamepulse
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

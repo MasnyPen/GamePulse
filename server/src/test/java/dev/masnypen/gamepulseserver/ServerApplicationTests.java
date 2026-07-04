@@ -1,7 +1,7 @@
 package dev.masnypen.gamepulseserver;
 
 import com.google.gson.Gson;
-import dev.masnypen.gamepulseserver.models.SysStats;
+import dev.masnypen.gamepulseserver.models.sysstats.SysStats;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

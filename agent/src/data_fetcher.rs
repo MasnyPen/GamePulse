@@ -57,7 +57,7 @@ pub fn fetch_data() -> SysStats {
         total_vram: round2(bytes_to_gib(gpu.info().total_vram())),
         used_vram: round2(bytes_to_gib(gpu.info().used_vram())),
         load_percentage: round2(gpu.info().load_pct() as f64),
-        temperature: round1(gpu.info().temperature() as f64),
+        temperature: round1(gpu.info().temperature() as f64 / 1000.0),
     };
 
 

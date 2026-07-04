@@ -1,8 +1,10 @@
 package dev.masnypen.gamepulseserver.sockets;
 
 import com.google.gson.Gson;
-import dev.masnypen.gamepulseserver.models.PacketType;
-import dev.masnypen.gamepulseserver.models.SysStats;
+import dev.masnypen.gamepulseserver.models.websocket.PacketType;
+import dev.masnypen.gamepulseserver.models.sysstats.SysStats;
+import dev.masnypen.gamepulseserver.services.SysStatsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -13,8 +15,11 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@RequiredArgsConstructor
 @Component
 public class MonitorHandler extends TextWebSocketHandler {
+
+    private final SysStatsService sysStatsService;
 
     private final Set<WebSocketSession> sessions =
             ConcurrentHashMap.newKeySet();
@@ -75,6 +80,6 @@ public class MonitorHandler extends TextWebSocketHandler {
 
     private void handleSysStatsPacket(WebSocketSession session, String data) {
         SysStats sysStats = new Gson().fromJson(data, SysStats.class);
-        System.out.println(sysStats.toString());
+        sysStatsService.save(sysStats);
     }
 }

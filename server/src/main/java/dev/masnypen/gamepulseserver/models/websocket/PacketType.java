@@ -1,4 +1,4 @@
-package dev.masnypen.gamepulseserver.models;
+package dev.masnypen.gamepulseserver.models.websocket;
 
 public enum PacketType {
     GPULSE_AUTH,

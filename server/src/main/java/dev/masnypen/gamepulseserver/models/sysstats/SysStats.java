@@ -1,4 +1,4 @@
-package dev.masnypen.gamepulseserver.models;
+package dev.masnypen.gamepulseserver.models.sysstats;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
