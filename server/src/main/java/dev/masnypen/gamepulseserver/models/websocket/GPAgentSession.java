@@ -12,4 +12,5 @@ import java.util.UUID;
 public class GPAgentSession {
     private WebSocketSession session;
     private UUID agentId;
+    private final long connectedAt;
 }

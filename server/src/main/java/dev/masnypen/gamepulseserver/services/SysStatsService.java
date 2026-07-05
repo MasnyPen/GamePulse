@@ -1,5 +1,6 @@
 package dev.masnypen.gamepulseserver.services;
 
+import com.google.gson.Gson;
 import dev.masnypen.gamepulseserver.models.GPAgent;
 import dev.masnypen.gamepulseserver.models.metrics.*;
 import dev.masnypen.gamepulseserver.models.sysstats.SysStats;
@@ -7,6 +8,7 @@ import dev.masnypen.gamepulseserver.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,6 +26,13 @@ public class SysStatsService {
     private final MemoryMetricsRepository memoryMetricsRepository;
     private final SystemDataRepository systemDataRepository;
     private final GPAgentRepository gpAgentRepository;
+
+    private final SessionRegistry sessionRegistry;
+
+
+    public void handle(WebSocketSession session, SysStats data) {
+        save(data, sessionRegistry.getAgentId(session));
+    }
 
     @Transactional
     public void save(SysStats stats, UUID agentId) {
