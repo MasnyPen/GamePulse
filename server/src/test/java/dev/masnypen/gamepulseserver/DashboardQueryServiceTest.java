@@ -71,7 +71,7 @@ class DashboardQueryServiceTest {
         cpu.setName("Ryzen");
         cpu.setThreads(12);
         cpu.setTemperature(66.0);
-        cpu.setFrequency(4100.0);
+        cpu.setFrequency(4100);
         cpu.setUsedPercentage(45.0);
 
         when(agentRepository.findAllById(Set.of(agentId))).thenReturn(List.of(agent));

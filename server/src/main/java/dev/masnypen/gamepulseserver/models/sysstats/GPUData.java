@@ -12,9 +12,9 @@ public class GPUData {
     private String vendor;
     private String model;
     @SerializedName("total_vram")
-    private double totalVram;
+    private long totalVram;
     @SerializedName("used_vram")
-    private double usedVram;
+    private long usedVram;
     @SerializedName("load_percentage")
     private double loadPercentage;
     private double temperature;

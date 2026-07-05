@@ -22,6 +22,6 @@ public class CpuMetricsEntity {
     private String name;
     private int threads;
     private double temperature;
-    private double frequency;
+    private int frequency;
     private double usedPercentage;
 }

@@ -21,8 +21,8 @@ public class GpuMetricsEntity {
 
     private String vendor;
     private String model;
-    private double totalVram;
-    private double usedVram;
+    private long totalVram;
+    private long usedVram;
     private double loadPercentage;
     private double temperature;
 }

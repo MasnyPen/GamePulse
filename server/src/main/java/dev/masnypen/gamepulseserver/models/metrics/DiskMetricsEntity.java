@@ -21,7 +21,7 @@ public class DiskMetricsEntity {
 
     private String device;
     private String filesystem;
-    private double totalSpace;
-    private double usedSpace;
+    private long totalSpace;
+    private long usedSpace;
     private String mountedOn;
 }

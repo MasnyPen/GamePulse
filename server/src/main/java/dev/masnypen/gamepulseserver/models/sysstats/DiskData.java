@@ -12,9 +12,9 @@ public class DiskData {
     private String device;
     private String filesystem;
     @SerializedName("total_space")
-    private double totalSpace;
+    private long totalSpace;
     @SerializedName("used_space")
-    private double usedSpace;
+    private long usedSpace;
     @SerializedName("mounted_on")
     private String mountedOn;
 }

@@ -12,7 +12,7 @@ public class CPUData {
     private String name;
     private int threads;
     private double temperature;
-    private double frequency;
+    private int frequency;
     @SerializedName("used_percentage")
     private double usedPercentage;
 }

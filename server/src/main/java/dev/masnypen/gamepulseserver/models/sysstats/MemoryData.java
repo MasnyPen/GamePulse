@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemoryData {
-    private double total;
-    private double used;
+    private long total;
+    private long used;
     @SerializedName("total_swap")
-    private double totalSwap;
+    private long totalSwap;
     @SerializedName("used_swap")
-    private double usedSwap;
+    private long usedSwap;
 }

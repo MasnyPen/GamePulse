@@ -19,12 +19,12 @@ public class MemoryMetricsEntity {
     @JoinColumn(name = "snapshot_id")
     private SystemSnapshotEntity snapshot;
 
-    private double total;
-    private double used;
+    private long total;
+    private long used;
 
     @Column(name = "total_swap")
-    private double totalSwap;
+    private long totalSwap;
 
     @Column(name = "used_swap")
-    private double usedSwap;
+    private long usedSwap;
 }
