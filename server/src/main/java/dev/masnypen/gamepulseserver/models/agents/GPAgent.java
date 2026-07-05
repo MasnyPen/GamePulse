@@ -1,4 +1,4 @@
-package dev.masnypen.gamepulseserver.models;
+package dev.masnypen.gamepulseserver.models.agents;
 
 import jakarta.persistence.*;
 import lombok.*;

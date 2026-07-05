@@ -1,6 +1,5 @@
-package dev.masnypen.gamepulseserver.models.websocket;
+package dev.masnypen.gamepulseserver.models.agents;
 
-import dev.masnypen.gamepulseserver.models.GPAgent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.web.socket.WebSocketSession;

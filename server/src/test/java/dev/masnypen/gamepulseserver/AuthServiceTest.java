@@ -1,7 +1,7 @@
 package dev.masnypen.gamepulseserver;
 
 import dev.masnypen.gamepulseserver.configs.AppConfig;
-import dev.masnypen.gamepulseserver.models.websocket.AuthPacketData;
+import dev.masnypen.gamepulseserver.models.agents.AuthPacketData;
 import dev.masnypen.gamepulseserver.repositories.GPAgentRepository;
 import dev.masnypen.gamepulseserver.services.SessionRegistry;
 import dev.masnypen.gamepulseserver.services.WebSocketAuthService;

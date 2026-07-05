@@ -1,11 +1,12 @@
 package dev.masnypen.gamepulseserver;
 
 import dev.masnypen.gamepulseserver.factories.TestSysStatsFactory;
-import dev.masnypen.gamepulseserver.models.GPAgent;
+import dev.masnypen.gamepulseserver.models.agents.GPAgent;
 import dev.masnypen.gamepulseserver.models.sysstats.SysStats;
 import dev.masnypen.gamepulseserver.repositories.*;
 import dev.masnypen.gamepulseserver.services.SessionRegistry;
 import dev.masnypen.gamepulseserver.services.SysStatsService;
+import dev.masnypen.gamepulseserver.services.dashboard.DashboardLiveUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,7 @@ class SysStatsServiceTest {
     @Mock SystemDataRepository systemDataRepo;
     @Mock GPAgentRepository gpAgentRepository;
     @Mock SessionRegistry sessionRegistry;
+    @Mock DashboardLiveUpdateService dashboardLiveUpdateService;
 
     @Mock WebSocketSession session;
 
@@ -76,5 +78,9 @@ class SysStatsServiceTest {
 
         // disks saved
         verify(diskRepo, times(1)).saveAll(anyList());
+
+        // live update forwarded
+        verify(dashboardLiveUpdateService, times(1))
+                .broadcast(eq(agentId), any(), any(), eq(stats));
     }
 }

@@ -2,8 +2,8 @@ package dev.masnypen.gamepulseserver.components;
 
 import com.google.gson.Gson;
 import dev.masnypen.gamepulseserver.models.sysstats.SysStats;
-import dev.masnypen.gamepulseserver.models.websocket.AuthPacketData;
-import dev.masnypen.gamepulseserver.models.websocket.PacketType;
+import dev.masnypen.gamepulseserver.models.agents.AuthPacketData;
+import dev.masnypen.gamepulseserver.models.agents.PacketType;
 import dev.masnypen.gamepulseserver.services.SessionRegistry;
 import dev.masnypen.gamepulseserver.services.SysStatsService;
 import dev.masnypen.gamepulseserver.services.WebSocketAuthService;

@@ -1,10 +1,10 @@
 package dev.masnypen.gamepulseserver.services;
 
-import com.google.gson.Gson;
-import dev.masnypen.gamepulseserver.models.GPAgent;
+import dev.masnypen.gamepulseserver.models.agents.GPAgent;
 import dev.masnypen.gamepulseserver.models.metrics.*;
 import dev.masnypen.gamepulseserver.models.sysstats.SysStats;
 import dev.masnypen.gamepulseserver.repositories.*;
+import dev.masnypen.gamepulseserver.services.dashboard.DashboardLiveUpdateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +28,7 @@ public class SysStatsService {
     private final GPAgentRepository gpAgentRepository;
 
     private final SessionRegistry sessionRegistry;
+    private final DashboardLiveUpdateService dashboardLiveUpdateService;
 
 
     public void handle(WebSocketSession session, SysStats data) {
@@ -36,6 +37,7 @@ public class SysStatsService {
 
     @Transactional
     public void save(SysStats stats, UUID agentId) {
+        Instant capturedAt = Instant.now();
 
         GPAgent agent = gpAgentRepository.findById(agentId)
                         .orElseThrow();
@@ -44,7 +46,7 @@ public class SysStatsService {
         SystemSnapshotEntity snap = snapshotRepo.save(
                 new SystemSnapshotEntity(
                         null,
-                        Instant.now(),
+                        capturedAt,
                         agent
                 )
         );
@@ -107,5 +109,7 @@ public class SysStatsService {
             disks.add(disk);
         });
         diskMetricsRepository.saveAll(disks);
+
+        dashboardLiveUpdateService.broadcast(agentId, snap.getId(), capturedAt, stats);
     }
 }

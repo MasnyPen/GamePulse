@@ -1,13 +1,10 @@
 package dev.masnypen.gamepulseserver.services;
 
-import com.google.gson.Gson;
 import dev.masnypen.gamepulseserver.configs.AppConfig;
-import dev.masnypen.gamepulseserver.models.GPAgent;
-import dev.masnypen.gamepulseserver.models.websocket.AuthPacketData;
-import dev.masnypen.gamepulseserver.models.websocket.GPAgentSession;
+import dev.masnypen.gamepulseserver.models.agents.GPAgent;
+import dev.masnypen.gamepulseserver.models.agents.AuthPacketData;
 import dev.masnypen.gamepulseserver.repositories.GPAgentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;

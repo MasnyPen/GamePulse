@@ -1,11 +1,10 @@
 package dev.masnypen.gamepulseserver.models.metrics;
 
-import dev.masnypen.gamepulseserver.models.GPAgent;
+import dev.masnypen.gamepulseserver.models.agents.GPAgent;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 @Setter

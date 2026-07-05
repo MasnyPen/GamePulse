@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,5 +36,13 @@ public class SessionRegistry {
 
     public WebSocketSession getSession(UUID agentId) {
         return sessionsByAgent.get(agentId);
+    }
+
+    public boolean isConnected(UUID agentId) {
+        return sessionsByAgent.containsKey(agentId);
+    }
+
+    public Set<UUID> getConnectedAgentIds() {
+        return Set.copyOf(sessionsByAgent.keySet());
     }
 }

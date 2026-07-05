@@ -1,4 +1,4 @@
-package dev.masnypen.gamepulseserver.models.websocket;
+package dev.masnypen.gamepulseserver.models.agents;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
