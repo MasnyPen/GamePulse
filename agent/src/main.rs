@@ -1,8 +1,10 @@
 use std::process::exit;
+use std::sync::Arc;
 use std::time::Duration;
 use tokio_tungstenite::connect_async;
 use futures_util::{SinkExt, StreamExt};
 use sysinfo::System;
+use tokio::sync::Notify;
 use tokio::time::timeout;
 use tokio_tungstenite::tungstenite::Message;
 use crate::config_mgmt::{load_agent_id_file, load_config, save_agent_id};
@@ -16,6 +18,11 @@ pub mod config_mgmt;
 #[tokio::main]
 async fn main() {
     println!("Starting GamePulse Agent...");
+
+    // -------------------------
+    // Reading config files
+    // -------------------------
+
     println!("Reading config...");
 
     let config = load_config().expect("Error loading config");
@@ -25,6 +32,10 @@ async fn main() {
     let agent_id = load_agent_id_file().unwrap();
 
     println!("Reading complete!");
+
+    // -------------------------
+    // Connect to server
+    // -------------------------
 
     println!("Connecting to websocket...");
 
@@ -42,6 +53,10 @@ async fn main() {
         Err(e) => panic!("Websocket timeout"),
     };
 
+    // -------------------------
+    // AUTH
+    // -------------------------
+
     let token = std::env::var("GAMEPULSE_AUTH_TOKEN").unwrap_or("token".to_string());
 
     let auth_packet_data = AuthPacketData {
@@ -55,9 +70,22 @@ async fn main() {
 
     socket.send(Message::text(packet_message)).await.unwrap();
 
+    // -------------------------
+    // SPLIT SOCKET
+    // -------------------------
+
     let (mut write, mut read) = socket.split();
 
-    // Read packets
+    // -------------------------
+    // Notify
+    // -------------------------
+    let notify = Arc::new(Notify::new());
+    let notify_reader = notify.clone();
+    let notify_writer = notify.clone();
+
+    // -------------------------
+    // Read Packets
+    // -------------------------
     let reader = tokio::spawn(async move {
         while let Some(msg) = read.next().await {
             let msg = msg.unwrap().to_string();
@@ -75,6 +103,7 @@ async fn main() {
                 }
 
                 println!("Connected!");
+                notify_reader.notify_one();
             }
 
             if packet_type == PacketType::GPULSE_AUTH_ERR {
@@ -89,9 +118,11 @@ async fn main() {
         }
     });
 
-    // Write packets
+    // -------------------------
+    // Write Packets
+    // -------------------------
     let writer = tokio::spawn(async move {
-
+        notify_writer.notified().await;
         loop {
             let data = fetch_data();
 
