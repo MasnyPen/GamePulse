@@ -19,10 +19,10 @@ pub struct SystemData {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MemoryData {
-    pub total: f64,
-    pub used: f64,
-    pub total_swap: f64,
-    pub used_swap: f64,
+    pub total: u64,
+    pub used: u64,
+    pub total_swap: u64,
+    pub used_swap: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -30,7 +30,7 @@ pub struct CPUData {
     pub name: String,
     pub threads: u8,
     pub temperature: f64,
-    pub frequency: f64,
+    pub frequency: u64,
     pub used_percentage: f64,
 }
 
@@ -38,8 +38,8 @@ pub struct CPUData {
 pub struct DiskData {
     pub device: String,
     pub filesystem: String,
-    pub total_space: f64,
-    pub used_space: f64,
+    pub total_space: u64,
+    pub used_space: u64,
     pub mounted_on: String
 }
 
@@ -47,8 +47,8 @@ pub struct DiskData {
 pub struct GPUData {
     pub vendor: String,
     pub model: String,
-    pub total_vram: f64,
-    pub used_vram: f64,
+    pub total_vram: u64,
+    pub used_vram: u64,
     pub load_percentage: f64,
     pub temperature: f64,
 }

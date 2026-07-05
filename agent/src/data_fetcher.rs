@@ -19,10 +19,10 @@ pub fn fetch_data() -> SysStats {
 
     // Memory
     let memory_data = MemoryData {
-        total: round2(bytes_to_gib(sys.total_memory())),
-        used: round2(bytes_to_gib(sys.used_memory())),
-        total_swap: round2(bytes_to_gib(sys.total_swap())),
-        used_swap: round2(bytes_to_gib(sys.used_swap())),
+        total: sys.total_memory(),
+        used: sys.used_memory(),
+        total_swap: sys.total_swap(),
+        used_swap: sys.used_swap(),
     };
 
     // CPU
@@ -42,9 +42,9 @@ pub fn fetch_data() -> SysStats {
     let cpu_data = CPUData {
         name: sys.cpus()[0].brand().parse().unwrap(),
         threads: sys.cpus().len() as u8,
-        temperature: round1(pkg_temp.unwrap().unwrap() as f64),
-        frequency: mhz_to_ghz(highest_frequency),
-        used_percentage: round2(sys.global_cpu_usage() as f64),
+        temperature: pkg_temp.unwrap().unwrap() as f64,
+        frequency: highest_frequency,
+        used_percentage: sys.global_cpu_usage() as f64,
     };
 
 
@@ -54,10 +54,10 @@ pub fn fetch_data() -> SysStats {
     let gpu_data = GPUData {
         vendor: gpu.vendor().parse().unwrap(),
         model: gpu.model().parse().unwrap(),
-        total_vram: round2(bytes_to_gib(gpu.info().total_vram())),
-        used_vram: round2(bytes_to_gib(gpu.info().used_vram())),
-        load_percentage: round2(gpu.info().load_pct() as f64),
-        temperature: round1(gpu.info().temperature() as f64 / 1000.0),
+        total_vram: gpu.info().total_vram(),
+        used_vram: gpu.info().used_vram(),
+        load_percentage: gpu.info().load_pct() as f64,
+        temperature: gpu.info().temperature() as f64,
     };
 
 
@@ -71,8 +71,8 @@ pub fn fetch_data() -> SysStats {
             DiskData {
                 device: disk.name().to_os_string().into_string().unwrap(),
                 filesystem: disk.file_system().to_os_string().into_string().unwrap(),
-                total_space: round2(bytes_to_gib(disk.total_space())),
-                used_space: round2(bytes_to_gib(disk.usage().total_written_bytes)),
+                total_space: disk.total_space(),
+                used_space: disk.usage().total_written_bytes,
                 mounted_on: disk.mount_point().to_str().unwrap().to_owned(),
             }
         )
@@ -86,31 +86,4 @@ pub fn fetch_data() -> SysStats {
         disks,
         gpu: gpu_data
     }
-}
-
-// ====== ROUND HELPERS ======
-
-#[inline]
-pub fn round2(x: f64) -> f64 {
-    (x * 100.0).round() / 100.0
-}
-
-#[inline]
-pub fn round1(x: f64) -> f64 {
-    (x * 10.0).round() / 10.0
-}
-
-#[inline]
-pub fn round0(x: f64) -> f64 {
-    x.round()
-}
-
-// ====== CONVERSIONS ======
-
-pub fn bytes_to_gib(bytes: u64) -> f64 {
-    round2(bytes as f64 / 1024f64.powi(3))
-}
-
-pub fn mhz_to_ghz(mhz: u64) -> f64 {
-    round2(mhz as f64 / 1000f64)
 }
