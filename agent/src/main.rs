@@ -5,9 +5,9 @@ use futures_util::{SinkExt, StreamExt};
 use sysinfo::System;
 use tokio::time::timeout;
 use tokio_tungstenite::tungstenite::Message;
-use crate::config_mgmt::load_config;
+use crate::config_mgmt::{load_agent_id_file, load_config, save_agent_id};
 use crate::data_fetcher::fetch_data;
-use crate::models::PacketType;
+use crate::models::{AuthACKPacketData, AuthERRPacketData, AuthPacketData, PacketType};
 
 pub mod models;
 pub mod data_fetcher;
@@ -19,6 +19,10 @@ async fn main() {
     println!("Reading config...");
 
     let config = load_config().expect("Error loading config");
+
+    println!("Reading agent.id...");
+
+    let agent_id = load_agent_id_file().unwrap();
 
     println!("Reading complete!");
 
@@ -40,8 +44,14 @@ async fn main() {
 
     let token = std::env::var("GAMEPULSE_AUTH_TOKEN").unwrap_or("token".to_string());
 
+    let auth_packet_data = AuthPacketData {
+        token,
+        agent_id,
+    };
+    let json = serde_json::to_string(&auth_packet_data);
+
     let mut packet_message = String::from("GPULSE_AUTH;");
-    packet_message.push_str(token.as_str());
+    packet_message.push_str(json.unwrap().as_str());
 
     socket.send(Message::text(packet_message)).await.unwrap();
 
@@ -59,11 +69,21 @@ async fn main() {
             let data = parts.next().unwrap();
 
             if packet_type == PacketType::GPULSE_AUTH_ACK {
+                let json: AuthACKPacketData = serde_json::from_str(&data).unwrap();
+                if let Err(_) = save_agent_id(json.agent_id) {
+                    panic!("Error saving agentId");
+                }
+
                 println!("Connected!");
             }
 
             if packet_type == PacketType::GPULSE_AUTH_ERR {
-                println!("Auth Error. Token invalid");
+                let json: AuthERRPacketData = serde_json::from_str(&data).unwrap();
+                match json.error.as_str() {
+                    "invalid_token" => println!("Invalid token"),
+                    "invalid_agent_id" => println!("Invalid agent id"),
+                    _ => println!("Unknown error {}", json.error)
+                }
                 exit(0)
             }
         }

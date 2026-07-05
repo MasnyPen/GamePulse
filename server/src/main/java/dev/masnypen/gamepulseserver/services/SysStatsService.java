@@ -1,5 +1,6 @@
 package dev.masnypen.gamepulseserver.services;
 
+import dev.masnypen.gamepulseserver.models.GPAgent;
 import dev.masnypen.gamepulseserver.models.metrics.*;
 import dev.masnypen.gamepulseserver.models.sysstats.SysStats;
 import dev.masnypen.gamepulseserver.repositories.*;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,16 +23,20 @@ public class SysStatsService {
     private final GpuMetricsRepository gpuMetricsRepository;
     private final MemoryMetricsRepository memoryMetricsRepository;
     private final SystemDataRepository systemDataRepository;
+    private final GPAgentRepository gpAgentRepository;
 
     @Transactional
-    public void save(SysStats stats) {
+    public void save(SysStats stats, UUID agentId) {
+
+        GPAgent agent = gpAgentRepository.findById(agentId)
+                        .orElseThrow();
 
         // SNAPSHOT (root)
         SystemSnapshotEntity snap = snapshotRepo.save(
                 new SystemSnapshotEntity(
                         null,
                         Instant.now(),
-                        stats.getSystem().getHostname()
+                        agent
                 )
         );
 

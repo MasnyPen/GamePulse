@@ -1,9 +1,11 @@
 package dev.masnypen.gamepulseserver.models.metrics;
 
+import dev.masnypen.gamepulseserver.models.GPAgent;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,5 +21,7 @@ public class SystemSnapshotEntity {
 
     private Instant capturedAt;
 
-    private String hostname;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "agent_id", nullable = false)
+    private GPAgent agent;
 }

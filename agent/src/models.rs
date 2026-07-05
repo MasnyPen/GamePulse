@@ -1,3 +1,4 @@
+use std::io::Error;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -89,6 +90,22 @@ impl PacketType {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuthPacketData {
+    pub token: String,
+    pub agent_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuthACKPacketData {
+    pub agent_id: String
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuthERRPacketData {
+    pub error: String
+}
+
 #[test]
 fn packet_type_roundtrip() {
     let variants = [
@@ -111,5 +128,4 @@ fn packet_type_roundtrip() {
 fn packet_type_invalid_string() {
     assert_eq!(PacketType::from_str("ABC"), None);
     assert_eq!(PacketType::from_str(""), None);
-
 }
