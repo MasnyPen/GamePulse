@@ -9,6 +9,7 @@ import dev.masnypen.gamepulseserver.models.sysstats.SysStats;
 import dev.masnypen.gamepulseserver.repositories.GPAgentRepository;
 import dev.masnypen.gamepulseserver.services.SysStatsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -27,6 +28,9 @@ public class MonitorHandler extends TextWebSocketHandler {
     private final SysStatsService sysStatsService;
     private final GPAgentRepository gpAgentRepository;
     private final Gson gson = new Gson();
+
+    @Value("${app.auth_token}")
+    private String authToken;
 
     private final Set<GPAgentSession> sessions =
             ConcurrentHashMap.newKeySet();
@@ -97,7 +101,7 @@ public class MonitorHandler extends TextWebSocketHandler {
         try {
             AuthPacketData authPacketData = gson.fromJson(data, AuthPacketData.class);
 
-            if (authPacketData.getToken().equals(System.getenv("GAMEPULSE_AUTH_TOKEN"))) {
+            if (authPacketData.getToken().equals(authToken)) {
                 GPAgent agent = null;
 
                 if (!authPacketData.getAgent_id().equals("None")) {
