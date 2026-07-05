@@ -57,7 +57,8 @@ async fn main() {
     // AUTH
     // -------------------------
 
-    let token = std::env::var("GAMEPULSE_AUTH_TOKEN").unwrap_or("token".to_string());
+    let token = std::env::var("GAMEPULSE_AUTH_TOKEN")
+        .expect("GAMEPULSE_AUTH_TOKEN not set");
 
     let auth_packet_data = AuthPacketData {
         token,
@@ -89,7 +90,7 @@ async fn main() {
     let reader = tokio::spawn(async move {
         while let Some(msg) = read.next().await {
             let msg = msg.unwrap().to_string();
-            let mut parts = msg.split(";");
+            let mut parts = msg.splitn(2, ";");
 
             let packet_type_str = parts.next().unwrap();
             let packet_type = PacketType::from_str(packet_type_str).unwrap();
@@ -97,7 +98,14 @@ async fn main() {
             let data = parts.next().unwrap();
 
             if packet_type == PacketType::GPULSE_AUTH_ACK {
-                let json: AuthACKPacketData = serde_json::from_str(&data).unwrap();
+                let json: AuthACKPacketData = match serde_json::from_str::<AuthACKPacketData>(data) {
+                    Ok(packet) => { packet }
+                    Err(e) => {
+                        eprintln!("Invalid packet: {e}");
+                        continue;
+                    }
+                };
+
                 if let Err(_) = save_agent_id(json.agent_id) {
                     panic!("Error saving agentId");
                 }
@@ -107,11 +115,18 @@ async fn main() {
             }
 
             if packet_type == PacketType::GPULSE_AUTH_ERR {
-                let json: AuthERRPacketData = serde_json::from_str(&data).unwrap();
+                let json: AuthERRPacketData = match serde_json::from_str::<AuthERRPacketData>(&data) {
+                    Ok(packet) => { packet }
+                    Err(e) => {
+                        eprintln!("Invalid packet: {e}");
+                        continue;
+                    }
+                };
+
                 match json.error.as_str() {
-                    "invalid_token" => println!("Invalid token"),
-                    "invalid_agent_id" => println!("Invalid agent id"),
-                    _ => println!("Unknown error {}", json.error)
+                    "invalid_token" => eprintln!("Invalid token"),
+                    "invalid_agent_id" => eprintln!("Invalid agent id"),
+                    _ => eprintln!("Unknown error {}", json.error)
                 }
                 exit(0)
             }
