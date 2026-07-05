@@ -54,7 +54,7 @@ pub struct GPUData {
 }
 
 // Packet Type
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum PacketType {
     GPULSE_AUTH,
     GPULSE_AUTH_ACK,
@@ -87,4 +87,29 @@ impl PacketType {
             _ => None,
         }
     }
+}
+
+#[test]
+fn packet_type_roundtrip() {
+    let variants = [
+        PacketType::GPULSE_AUTH,
+        PacketType::GPULSE_AUTH_ACK,
+        PacketType::GPULSE_AUTH_ERR,
+        PacketType::GPULSE_DENY,
+        PacketType::GPULSE_SYSSTATS,
+    ];
+
+    for packet in variants {
+        assert_eq!(
+            PacketType::from_str(packet.as_str()),
+            Some(packet)
+        );
+    }
+}
+
+#[test]
+fn packet_type_invalid_string() {
+    assert_eq!(PacketType::from_str("ABC"), None);
+    assert_eq!(PacketType::from_str(""), None);
+
 }

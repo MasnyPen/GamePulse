@@ -1,24 +1,49 @@
 use std::process::exit;
+use std::time::Duration;
 use tokio_tungstenite::connect_async;
 use futures_util::{SinkExt, StreamExt};
 use sysinfo::System;
+use tokio::time::timeout;
 use tokio_tungstenite::tungstenite::Message;
+use crate::config_mgmt::load_config;
 use crate::data_fetcher::fetch_data;
 use crate::models::PacketType;
 
 pub mod models;
 pub mod data_fetcher;
+pub mod config_mgmt;
 
 #[tokio::main]
 async fn main() {
+    println!("Starting GamePulse Agent...");
+    println!("Reading config...");
+
+    let config = load_config().expect("Error loading config");
+
+    println!("Reading complete!");
+
     println!("Connecting to websocket...");
 
-    let (mut socket, _) =
-        connect_async("ws://localhost:8080/monitor")
-            .await
-            .unwrap();
+    let mut conn_url = String::from("ws://");
+    conn_url.push_str(config.websocket.url.as_str());
 
-    socket.send(Message::text("GPULSE_AUTH;token")).await.unwrap();
+    let result = timeout(
+        Duration::from_millis(config.websocket.timeout_ms),
+        connect_async(conn_url)
+    ).await;
+
+    let (mut socket, _) = match result {
+        Ok(Ok(conn)) => conn,
+        Ok(Err(e)) => panic!("Failed to connect to websocket: {e}"),
+        Err(e) => panic!("Websocket timeout"),
+    };
+
+    let token = std::env::var("GAMEPULSE_AUTH_TOKEN").unwrap_or("token".to_string());
+
+    let mut packet_message = String::from("GPULSE_AUTH;");
+    packet_message.push_str(token.as_str());
+
+    socket.send(Message::text(packet_message)).await.unwrap();
 
     let (mut write, mut read) = socket.split();
 
@@ -59,7 +84,7 @@ async fn main() {
 
             write.send(Message::Text(text)).await.expect("Error: Cannot send stats message to server!");
 
-            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+            tokio::time::sleep(std::time::Duration::from_secs(config.sysstats.packet_send_interval)).await;
         }
     });
 
