@@ -1,12 +1,16 @@
 use std::process::exit;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio_tungstenite::connect_async;
 use futures_util::{SinkExt, StreamExt};
-use sysinfo::System;
 use tokio::sync::Notify;
 use tokio::time::timeout;
 use tokio_tungstenite::tungstenite::Message;
+use native_tls::TlsConnector;
+use tokio_tungstenite::{
+    connect_async,
+    connect_async_tls_with_config,
+    Connector,
+};
 use crate::config_mgmt::{load_agent_id_file, load_config, save_agent_id};
 use crate::data_fetcher::fetch_data;
 use crate::models::{AuthACKPacketData, AuthERRPacketData, AuthPacketData, PacketType};
@@ -39,18 +43,46 @@ async fn main() {
 
     println!("Connecting to websocket...");
 
-    let mut conn_url = String::from("ws://");
-    conn_url.push_str(config.websocket.url.as_str());
+    let scheme = if config.websocket.tls {
+        "wss://"
+    } else {
+        "ws://"
+    };
 
-    let result = timeout(
-        Duration::from_millis(config.websocket.timeout_ms),
-        connect_async(conn_url)
-    ).await;
+    let conn_url = format!("{}{}", scheme, config.websocket.url);
+
+    let result = if config.websocket.tls {
+        let mut builder = TlsConnector::builder();
+
+        if config.websocket.accept_danger_cert {
+            println!("WARNING: accepting invalid TLS certificates!");
+            builder.danger_accept_invalid_certs(true);
+        }
+
+        let connector = Connector::NativeTls(builder.build().unwrap().into());
+
+        timeout(
+            Duration::from_millis(config.websocket.timeout_ms),
+            connect_async_tls_with_config(
+                conn_url,
+                None,
+                false,
+                Some(connector),
+            ),
+        )
+            .await
+    } else {
+        timeout(
+            Duration::from_millis(config.websocket.timeout_ms),
+            connect_async(conn_url),
+        )
+            .await
+    };
 
     let (mut socket, _) = match result {
         Ok(Ok(conn)) => conn,
         Ok(Err(e)) => panic!("Failed to connect to websocket: {e}"),
-        Err(e) => panic!("Websocket timeout"),
+        Err(_) => panic!("Websocket timeout"),
     };
 
     // -------------------------
@@ -97,7 +129,7 @@ async fn main() {
 
             let data = parts.next().unwrap();
 
-            if packet_type == PacketType::GPULSE_AUTH_ACK {
+            if packet_type == PacketType::GPulseAuthACK {
                 let json: AuthACKPacketData = match serde_json::from_str::<AuthACKPacketData>(data) {
                     Ok(packet) => { packet }
                     Err(e) => {
@@ -114,7 +146,7 @@ async fn main() {
                 notify_reader.notify_one();
             }
 
-            if packet_type == PacketType::GPULSE_AUTH_ERR {
+            if packet_type == PacketType::GPulseAuthErr {
                 let json: AuthERRPacketData = match serde_json::from_str::<AuthERRPacketData>(&data) {
                     Ok(packet) => { packet }
                     Err(e) => {
@@ -142,7 +174,7 @@ async fn main() {
             let data = fetch_data();
 
             let json = serde_json::to_string(&data);
-            let mut message = String::from(PacketType::GPULSE_SYSSTATS.as_str());
+            let mut message = String::from(PacketType::GPulseSysStats.as_str());
             message.push_str(";");
             message.push_str(json.unwrap().as_str());
 

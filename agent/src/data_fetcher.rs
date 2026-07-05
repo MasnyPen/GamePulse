@@ -1,5 +1,5 @@
 use gfxinfo::active_gpu;
-use sysinfo::{Components, Cpu, Disks, System};
+use sysinfo::{Components, Disks, System};
 use crate::models::{CPUData, DiskData, GPUData, MemoryData, SysStats, SystemData};
 
 pub fn fetch_data() -> SysStats {
@@ -28,7 +28,7 @@ pub fn fetch_data() -> SysStats {
     // CPU
     let mut highest_frequency = 0;
 
-    for (i, cpu) in sys.cpus().iter().enumerate() {
+    for (_, cpu) in sys.cpus().iter().enumerate() {
         if highest_frequency < cpu.frequency() {
             highest_frequency = cpu.frequency();
         }
@@ -79,13 +79,13 @@ pub fn fetch_data() -> SysStats {
     }
 
 
-    return SysStats {
+    SysStats {
         system: system_data,
         memory: memory_data,
         cpu: cpu_data,
-        disks: disks,
+        disks,
         gpu: gpu_data
-    };
+    }
 }
 
 // ====== ROUND HELPERS ======

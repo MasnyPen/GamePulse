@@ -1,4 +1,3 @@
-use std::io::Error;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -57,22 +56,21 @@ pub struct GPUData {
 // Packet Type
 #[derive(PartialEq, Debug)]
 pub enum PacketType {
-    GPULSE_AUTH,
-    GPULSE_AUTH_ACK,
-    GPULSE_AUTH_ERR,
-    GPULSE_DENY,
-
-    GPULSE_SYSSTATS,
+    GPulseAuth,
+    GPulseAuthACK,
+    GPulseAuthErr,
+    GPulseDeny,
+    GPulseSysStats,
 }
 
 impl PacketType {
     pub fn as_str(&self) -> &'static str {
         match self {
-            PacketType::GPULSE_AUTH => "GPULSE_AUTH",
-            PacketType::GPULSE_AUTH_ACK => "GPULSE_AUTH_ACK",
-            PacketType::GPULSE_AUTH_ERR => "GPULSE_AUTH_ERR",
-            PacketType::GPULSE_DENY => "GPULSE_DENY",
-            PacketType::GPULSE_SYSSTATS => "GPULSE_SYSSTATS",
+            PacketType::GPulseAuth => "GPULSE_AUTH",
+            PacketType::GPulseAuthACK => "GPULSE_AUTH_ACK",
+            PacketType::GPulseAuthErr => "GPULSE_AUTH_ERR",
+            PacketType::GPulseDeny => "GPULSE_DENY",
+            PacketType::GPulseSysStats => "GPULSE_SYSSTATS",
         }
     }
 }
@@ -80,11 +78,11 @@ impl PacketType {
 impl PacketType {
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
-            "GPULSE_AUTH" => Some(PacketType::GPULSE_AUTH),
-            "GPULSE_AUTH_ACK" => Some(PacketType::GPULSE_AUTH_ACK),
-            "GPULSE_AUTH_ERR" => Some(PacketType::GPULSE_AUTH_ERR),
-            "GPULSE_DENY" => Some(PacketType::GPULSE_DENY),
-            "GPULSE_SYSSTATS" => Some(PacketType::GPULSE_SYSSTATS),
+            "GPULSE_AUTH" => Some(PacketType::GPulseAuth),
+            "GPULSE_AUTH_ACK" => Some(PacketType::GPulseAuthACK),
+            "GPULSE_AUTH_ERR" => Some(PacketType::GPulseAuthErr),
+            "GPULSE_DENY" => Some(PacketType::GPulseDeny),
+            "GPULSE_SYSSTATS" => Some(PacketType::GPulseSysStats),
             _ => None,
         }
     }
@@ -109,11 +107,11 @@ pub struct AuthERRPacketData {
 #[test]
 fn packet_type_roundtrip() {
     let variants = [
-        PacketType::GPULSE_AUTH,
-        PacketType::GPULSE_AUTH_ACK,
-        PacketType::GPULSE_AUTH_ERR,
-        PacketType::GPULSE_DENY,
-        PacketType::GPULSE_SYSSTATS,
+        PacketType::GPulseAuth,
+        PacketType::GPulseAuthACK,
+        PacketType::GPulseAuthErr,
+        PacketType::GPulseDeny,
+        PacketType::GPulseSysStats,
     ];
 
     for packet in variants {

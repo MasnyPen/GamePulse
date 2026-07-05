@@ -1,6 +1,8 @@
 [websocket]
 url = "localhost:8080/monitor"
 timeout_ms = 2000
+tls = false
+accept_danger_cert = false
 
 [sysstats]
 packet_send_interval = 5 # seconds

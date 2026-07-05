@@ -39,7 +39,9 @@ pub struct Config {
 #[derive(Debug, Deserialize)]
 pub struct WebSocketConfig {
     pub url: String,
-    pub timeout_ms: u64
+    pub timeout_ms: u64,
+    pub tls: bool,
+    pub accept_danger_cert: bool,
 }
 
 #[derive(Debug, Deserialize)]
