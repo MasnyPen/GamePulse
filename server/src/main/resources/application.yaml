@@ -19,3 +19,4 @@ spring:
 
 app:
   auth_token: ${GAMEPULSE_AUTH_TOKEN:token}
+  old_snapshots_threshold: ${GAMEPULSE_OLD_SNAPSHOTS_THRESHOLD:1d}

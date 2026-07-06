@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,4 +24,20 @@ public class SystemSnapshotEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "agent_id", nullable = false)
     private GPAgent agent;
+
+    @OneToOne(mappedBy = "snapshot", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private CpuMetricsEntity cpuMetrics;
+
+    @OneToOne(mappedBy = "snapshot", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private GpuMetricsEntity gpuMetrics;
+
+    @OneToOne(mappedBy = "snapshot", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private MemoryMetricsEntity memoryMetrics;
+
+    @OneToOne(mappedBy = "snapshot", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private SystemDataEntity systemData;
+
+    @OneToMany(mappedBy = "snapshot", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<DiskMetricsEntity> diskMetrics;
+
 }

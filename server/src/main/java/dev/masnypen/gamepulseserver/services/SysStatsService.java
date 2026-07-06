@@ -43,17 +43,15 @@ public class SysStatsService {
                         .orElseThrow();
 
         // SNAPSHOT (root)
-        SystemSnapshotEntity snap = snapshotRepo.save(
-                new SystemSnapshotEntity(
-                        null,
-                        capturedAt,
-                        agent
-                )
-        );
+        SystemSnapshotEntity snap = new SystemSnapshotEntity();
+        snap.setCapturedAt(capturedAt);
+        snap.setAgent(agent);
+
+        SystemSnapshotEntity savedSnapshot = snapshotRepo.save(snap);
 
         // SYSTEM DATA
         SystemDataEntity system = new SystemDataEntity();
-        system.setSnapshot(snap);
+        system.setSnapshot(savedSnapshot);
         system.setName(stats.getSystem().getName());
         system.setKernel(stats.getSystem().getKernel());
         system.setOsVersion(stats.getSystem().getOsVersion());
@@ -63,7 +61,7 @@ public class SysStatsService {
 
         // CPU
         CpuMetricsEntity cpu = new CpuMetricsEntity();
-        cpu.setSnapshot(snap);
+        cpu.setSnapshot(savedSnapshot);
         cpu.setName(stats.getCpu().getName());
         cpu.setThreads(stats.getCpu().getThreads());
         cpu.setTemperature(stats.getCpu().getTemperature());
@@ -74,7 +72,7 @@ public class SysStatsService {
 
         // MEMORY
         MemoryMetricsEntity mem = new MemoryMetricsEntity();
-        mem.setSnapshot(snap);
+        mem.setSnapshot(savedSnapshot);
         mem.setTotal(stats.getMemory().getTotal());
         mem.setUsed(stats.getMemory().getUsed());
         mem.setTotalSwap(stats.getMemory().getTotalSwap());
@@ -84,7 +82,7 @@ public class SysStatsService {
 
         // GPU
         GpuMetricsEntity gpu = new GpuMetricsEntity();
-        gpu.setSnapshot(snap);
+        gpu.setSnapshot(savedSnapshot);
         gpu.setVendor(stats.getGpu().getVendor());
         gpu.setModel(stats.getGpu().getModel());
         gpu.setTotalVram(stats.getGpu().getTotalVram());
@@ -99,7 +97,7 @@ public class SysStatsService {
 
         stats.getDisks().forEach(d -> {
             DiskMetricsEntity disk = new DiskMetricsEntity();
-            disk.setSnapshot(snap);
+            disk.setSnapshot(savedSnapshot);
             disk.setDevice(d.getDevice());
             disk.setFilesystem(d.getFilesystem());
             disk.setTotalSpace(d.getTotalSpace());
@@ -110,6 +108,6 @@ public class SysStatsService {
         });
         diskMetricsRepository.saveAll(disks);
 
-        dashboardLiveUpdateService.broadcast(agentId, snap.getId(), capturedAt, stats);
+        dashboardLiveUpdateService.broadcast(agentId, savedSnapshot.getId(), capturedAt, stats);
     }
 }

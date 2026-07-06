@@ -64,7 +64,10 @@ class DashboardQueryServiceTest {
     void shouldReturnLatestSnapshotWithSelectedMetrics() {
         UUID agentId = UUID.randomUUID();
         GPAgent agent = new GPAgent(agentId, "host", "127.0.0.1", System.currentTimeMillis());
-        SystemSnapshotEntity snapshot = new SystemSnapshotEntity(10L, Instant.now(), agent);
+        SystemSnapshotEntity snapshot = new SystemSnapshotEntity();
+        snapshot.setId(10L);
+        snapshot.setCapturedAt(Instant.now());
+        snapshot.setAgent(agent);
 
         CpuMetricsEntity cpu = new CpuMetricsEntity();
         cpu.setSnapshot(snapshot);
