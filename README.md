@@ -21,6 +21,6 @@ It consists of a lightweight Rust agent that collects system metrics from each c
 * **Server:** Java + Spring Boot
 * **Dashboard:** React + Vite
 * **Communication:** REST/WebSocket
-* **Database:** PostgreSQL (optional)
+* **Database:** PostgreSQL
 
 GamePulse helps tournament organizers and administrators quickly identify hardware issues, overheating, performance bottlenecks, or offline machines before they impact players.
