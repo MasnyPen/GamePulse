@@ -1,20 +1,27 @@
+
 use gfxinfo::active_gpu;
 use sysinfo::{Components, Disks, System};
-use crate::models::{CPUData, DiskData, GPUData, MemoryData, SysStats, SystemData};
+
+use crate::models::{
+    CPUData,
+    DiskData,
+    GPUData,
+    MemoryData,
+    SysStats,
+    SystemData,
+};
 
 pub fn fetch_data() -> SysStats {
-    // Sys Init
+    // System initialization
     let mut sys = System::new_all();
-
-    // Refresh system information:
     sys.refresh_all();
 
-    // System
+    // System information
     let system_data = SystemData {
-        name: System::name().unwrap(),
-        kernel: System::kernel_version().unwrap(),
-        os_version: System::os_version().unwrap(),
-        hostname: System::host_name().unwrap(),
+        name: System::name().unwrap_or_else(|| "Unknown".to_string()),
+        kernel: System::kernel_version().unwrap_or_else(|| "Unknown".to_string()),
+        os_version: System::os_version().unwrap_or_else(|| "Unknown".to_string()),
+        hostname: System::host_name().unwrap_or_else(|| "Unknown".to_string()),
     };
 
     // Memory
@@ -26,64 +33,95 @@ pub fn fetch_data() -> SysStats {
     };
 
     // CPU
-    let mut highest_frequency = 0;
+    let cpus = sys.cpus();
 
-    for (_, cpu) in sys.cpus().iter().enumerate() {
-        if highest_frequency < cpu.frequency() {
-            highest_frequency = cpu.frequency();
-        }
-    }
-
-    let pkg_temp = Components::new_with_refreshed_list()
+    let highest_frequency = cpus
         .iter()
-        .find(|c| c.label().contains("Package id"))
-        .map(|c| c.temperature());
+        .map(|cpu| cpu.frequency())
+        .max()
+        .unwrap_or(0);
+
+    let cpu_name = cpus
+        .first()
+        .map(|cpu| cpu.brand().to_string())
+        .filter(|name| !name.trim().is_empty())
+        .unwrap_or_else(|| "Unknown".to_string());
+
+    let threads = cpus.len().min(u8::MAX as usize) as u8;
+
+    // CPU temperature
+    let components = Components::new_with_refreshed_list();
+
+    let pkg_temp = components
+        .iter()
+        .find(|c| {
+            let label = c.label().to_lowercase();
+
+            label.contains("package id")
+                || label.contains("tctl")
+                || label.contains("tdie")
+        })
+        .and_then(|c| c.temperature())
+        .unwrap_or(0.0);
 
     let cpu_data = CPUData {
-        name: sys.cpus()[0].brand().parse().unwrap(),
-        threads: sys.cpus().len() as u8,
-        temperature: pkg_temp.unwrap().unwrap() as f64,
+        name: cpu_name,
+        threads,
+        temperature: pkg_temp as f64,
         frequency: highest_frequency,
         used_percentage: sys.global_cpu_usage() as f64,
     };
 
-
     // GPU
-    let gpu = active_gpu().unwrap();
+    let gpu_data = match active_gpu() {
+        Ok(gpu) => {
+            let info = gpu.info();
 
-    let gpu_data = GPUData {
-        vendor: gpu.vendor().parse().unwrap(),
-        model: gpu.model().parse().unwrap(),
-        total_vram: gpu.info().total_vram(),
-        used_vram: gpu.info().used_vram(),
-        load_percentage: gpu.info().load_pct() as f64,
-        temperature: gpu.info().temperature() as f64,
+            GPUData {
+                vendor: gpu.vendor().to_string(),
+                model: gpu.model().to_string(),
+                total_vram: info.total_vram(),
+                used_vram: info.used_vram(),
+                load_percentage: info.load_pct() as f64,
+                temperature: info.temperature() as f64,
+            }
+        }
+
+        Err(err) => {
+            eprintln!("GPU not available: {}", err);
+
+            GPUData {
+                vendor: "Unknown".to_string(),
+                model: "Unknown".to_string(),
+                total_vram: 0,
+                used_vram: 0,
+                load_percentage: 0.0,
+                temperature: 0.0,
+            }
+        }
     };
-
 
     // Disks
     let disks_list = Disks::new_with_refreshed_list();
 
-    let mut disks: Vec<DiskData> = Vec::new();
-
-    for disk in &disks_list {
-        disks.push(
+    let disks: Vec<DiskData> = disks_list
+        .iter()
+        .map(|disk| {
             DiskData {
-                device: disk.name().to_os_string().into_string().unwrap(),
-                filesystem: disk.file_system().to_os_string().into_string().unwrap(),
+                device: disk.name().to_string_lossy().into_owned(),
+                filesystem: disk.file_system().to_string_lossy().into_owned(),
                 total_space: disk.total_space(),
                 used_space: disk.usage().total_written_bytes,
-                mounted_on: disk.mount_point().to_str().unwrap().to_owned(),
+                mounted_on: disk.mount_point().to_string_lossy().into_owned(),
             }
-        )
-    }
-
+        })
+        .collect();
 
     SysStats {
         system: system_data,
         memory: memory_data,
         cpu: cpu_data,
         disks,
-        gpu: gpu_data
+        gpu: gpu_data,
     }
 }
